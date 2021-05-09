@@ -1,0 +1,86 @@
+# Centos7 install on getac V110
+################################################################
+# See the TAKServerSetup.txt file for TAK server configuration
+################################################################
+
+# 1. Standard Centos7 Live install works flawlessly from a USB device when booted 
+# via Win10 Settings, "Updates & Security/Recovery, Advanced startup/Restart now"
+# and selecting "Use a device", the select the USB stick from the list.
+
+# 2. Once booted, configure the WiFi or ethernet conenction so that there is 
+# internet access available.  Then choose the option in the menu system to 
+# "Install to Hard Disk".  Once the installation is compelte, POWER OFF the pc 
+# to clear the lock on yum.  
+#sudo halt
+# Remove the USB stick before starting the PC, or simply restart the VM.
+
+# 3. Install epel-release and run an update to freshen package lists
+sudo yum install epel-release -y
+sudo yum update -y
+
+# 4. OPTIONAL if only a server (minimal) version was installed, and you wish to
+# install a desktop enviroment such as Cinnamon, Mate, etc.
+#sudo yum groupinstall "Server with GUI" -y
+
+# 5. OPTIONAL if desired and not installed by the Live installler
+#sudo yum groupinstall cinnamon -y 
+# Could be one of the other desktop environments such as Mate also.
+
+# 6. If required, enable sshd so that the device may be reached
+# via shell over ssh.  Then start the ssh server
+sudo systemctl enable sshd
+sudo systemctl start sshd
+
+# 7. OPTIONAL Install the pps tools for messing with the GPS unit
+#sudo yum install pps-tools pps-tools-devel
+
+# 8. Install dependencies for the TAK server
+#sudo yum install java-11-openjdk-devel # is auto-installed as takserver dependency
+sudo yum install \ https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm -y
+# 9. Select the jdk11 as the default Java version by running:
+sudo alternatives --config java
+# and choosing the java-11-openjdk from the list by numeral
+
+# 10. Install the TAK Server from the TAK server rpm file
+sudo yum install <rpm filename here> -y
+# and initialize the ATAK database with the setup script
+sudo /opt/tak/db-utils/takserver-setup-db.sh
+
+# 11. Reboot and check the system d status of the takserver.service
+sudo reboot
+# the following should show output that denotes that it is there
+sudo systemctl status takserver
+# now enable it at boot
+sudo systemctl enable takserver
+# now start it
+sudo systemctl start takserver
+# now check it
+ps ax|grep tak
+# that should show multiple processes running
+
+###################################################################
+# 12. Open various firewall ports
+###################################################################
+sudo firewall-cmd --add-port=6969/udp --permanent
+sudo firewall-cmd --add-port=8080/tcp --permanent
+sudo firewall-cmd --add-port=8087/udp --permanent
+sudo firewall-cmd --add-port=8087/tcp --permanent
+sudo firewall-cmd --add-port=8089/tcp --permanent
+sudo firewall-cmd --add-port=8089/udp --permanent
+sudo firewall-cmd --add-port=8443/tcp --permanent
+
+# 13. Change the config to allow lots of open file descriptors
+sudo echo -e "* soft nofile 32768\n* hard nofile 32768" | sudo tee --append /etc/security/limits.conf > /dev/null
+
+###################################################################
+# 14. OPTIONAL - install remote desktop protocol for remote control
+###################################################################
+#sudo yum install xrdp -yum
+#sudo systemctl enable xrdp
+#sudo systemctl start xrdp
+#sudo firewall-cmd --add-port=3389/tcp --permanent
+#sudo firewall-cmd --reload
+################################################################
+################################################################
+# See the TAKServerSetup.txt file for TAK server configuration
+################################################################

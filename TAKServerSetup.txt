@@ -1,0 +1,38 @@
+################################################################
+# See the Centos7Install.txt file for Centos7 installation
+################################################################
+# The assumption at the outset is that the Centos7 system has
+# been installed and configured, and that the TAK server is now
+# running and needs to be properly configured and security tasks
+# need to be completed.  This document will direct that process.
+################################################################
+################################################################
+# The first task, is to use the /opt/tak/certs/ReadMe.txt file to
+# generate the server root certificate (ca root), the trust store,
+# and a client certificate for the clients you allow to connect to
+# the TAK server.
+################################################################
+# 1. If not already done, change the password for the "tak" user
+# which is required for the next step.
+sudo passwd tak
+# and record the new password for the "tak" user for use in step 2.
+
+# 2. Use the UserManager.jar process to create the basic local
+# administrator login credentials
+sudo su tak
+java -jar /opt/tak/utils/UserManager.jar usermod -A -p <password> <username>
+# 3. And now you may login to the main web interface at:
+# http://localhost:8080
+# The web page will prompt for the login credentials created in 
+# step 2. above.
+#
+# 4. The http://localhost:8080/setup page will allow you to 
+# configure a secure access port (typically port 8089) using the
+# truststore created 
+################################################################
+# See the Centos7Install.txt file for Centos7 installation
+################################################################
+################################################################
+# See the TAKServerMintInstall.txt file for Mint (v20) installation
+# which should also work for Ubuntu and Debian and derivatives.
+################################################################
