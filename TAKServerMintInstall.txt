@@ -1,0 +1,115 @@
+#######################################################################
+# Mitch Winkle mitch@radcommsoft.com 2021-05-08
+# Linux Mint 20 Install for TAK Server 
+#######################################################################
+#######################################################################
+# See the TAKServerSetup.txt file for further TAK server configuration
+#######################################################################
+
+# 1. Standard Mint Live install works flawlessly from a USB device when booted 
+# via Win10 Settings, "Updates & Security/Recovery, Advanced startup/Restart now"
+# and selecting "Use a device", the select the USB stick from the list.
+
+# 2. Once booted, configure the WiFi or ethernet conenction so that there is 
+# internet access available.  Then choose the option in the menu system to 
+# "Install to Hard Disk".  Once the installation is compelte, POWER OFF the pc 
+# to clear any locks on the apt package utility.
+#sudo halt
+# Remove the USB stick before starting the PC, or simply restart the VM.
+
+# 3. Run an update to freshen package lists
+sudo apt update
+# 4. If required, enable sshd so that the device may be reached
+# via shell over ssh.  Then start the ssh server
+sudo systemctl enable sshd
+sudo systemctl start sshd
+
+# 5. OPTIONAL Install the pps tools for messing with the GPS unit
+#sudo apt install pps-tools
+
+# 6. Install dependencies for the TAK server
+sudo apt install java11-sdk
+# postgresql currently installs version 12 and already initdb's the system
+sudo apt install postgresql 
+# 7. Select the jdk11 as the default Java version by
+# choosing the java-11-openjdk from the list by numeral
+sudo update-alternatives --config java
+
+# 8. on the new Minty system, add the "tak" group and user
+sudo groupadd tak
+sudo useradd -d /opt/tak -G tak tak
+
+# 9. Install the TAK Server from the TAK server rpm file
+# Unarchive the .rpm file to the file system using the
+# rpm2cpio and cpio tools in Mint/Debian/Ubuntu.
+#
+sudo apt install rpm2cpio
+# The process is:
+# With the .rpm file in a temp folder, do:
+#
+#rpm2cpio takserver<version>.rpm | cpio -idvm
+#
+# That will create the full file system in the temp folder, then:
+#
+# tar cvzf takserver<version>.tar.gz ./opt/*
+
+##### Now this tarball can be used for multiple server builds #####
+#
+# Move the tar.gz to your new system and untar it (as root user)
+# into the ROOT of the file system, since the tar starts with /opt
+# sudo tar xvzf takserver<version>.tar.gz -C /  
+
+# May already be correct, but....
+cd /opt
+sudo chown tak.tak tak
+# def need to do this, so that the proper
+# group number is applied to the file system
+cd /opt/tak
+sudo chown -R tak.tak ./*
+# and initialize the ATAK database with the setup script
+#############################################################
+# NOTE: If this file does not exist, it must be copied from #
+# elsewhere or manually edited to fix the paths for PGDATA  #
+# and other variables in the script.                        #
+#############################################################
+sudo /opt/tak/db-utils/takserver-setup-db-mint.sh
+#############################################################
+
+# 10. Reboot and check the system d status of the takserver.service
+sudo reboot
+# the following should show output that denotes that it is there
+sudo systemctl status takserver
+# now enable it at boot
+sudo systemctl enable takserver
+# now start it
+sudo systemctl start takserver
+# now check it
+ps ax|grep tak
+# that should show multiple processes running
+
+###################################################################
+# 11. Open various firewall ports
+###################################################################
+sudo firewall-cmd --add-port=6969/udp --permanent
+sudo firewall-cmd --add-port=8080/tcp --permanent
+sudo firewall-cmd --add-port=8087/udp --permanent
+sudo firewall-cmd --add-port=8087/tcp --permanent
+sudo firewall-cmd --add-port=8089/tcp --permanent
+sudo firewall-cmd --add-port=8089/udp --permanent
+sudo firewall-cmd --add-port=8443/tcp --permanent
+
+# 13. Change the config to allow lots of open file descriptors
+sudo echo -e "* soft nofile 32768\n* hard nofile 32768" | sudo tee --append /etc/security/limits.conf > /dev/null
+
+###################################################################
+# 14. OPTIONAL - install remote desktop protocol for remote control
+###################################################################
+#sudo apt install xrdp -yum
+#sudo systemctl enable xrdp
+#sudo systemctl start xrdp
+#sudo firewall-cmd --add-port=3389/tcp --permanent
+#sudo firewall-cmd --reload
+################################################################
+################################################################
+# See the TAKServerSetup.txt file for TAK server configuration
+################################################################
