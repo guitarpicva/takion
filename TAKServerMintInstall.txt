@@ -82,18 +82,16 @@ sudo sed -i 's/. \/etc\/rc.d\/init.d\/functions/#&/' /etc/init.d/takserver
 sudo sed -i 's/. \/etc\/rc.d\/init.d\/functions/#&/' /etc/init.d/takserver-messaging
 sudo sed -i 's/. \/etc\/rc.d\/init.d\/functions/#&/' /etc/init.d/takserver-api
 ###
-
 # 10. Reboot and check the system d status of the takserver.service
 sudo reboot
-# the following should show output that denotes that it is there
-sudo systemctl status takserver
 # now enable it at boot
 sudo systemctl enable takserver
 # now start it
 sudo systemctl start takserver
 # now check it
 ps ax|grep tak
-# that should show multiple processes running
+# that should show multiple "java" processes running along with the
+# originating shell scripts for them.
 
 ###################################################################
 # 11. Open various firewall ports
