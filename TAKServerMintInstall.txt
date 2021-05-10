@@ -1,10 +1,10 @@
-#######################################################################
+################################################################
 # Mitch Winkle mitch@radcommsoft.com 2021-05-08
-# Linux Mint 20 Install for TAK Server 
-#######################################################################
-#######################################################################
+# Linux Mint 20 Install for TAK Server
+################################################################
+################################################################
 # See the TAKServerSetup.txt file for further TAK server configuration
-#######################################################################
+################################################################
 
 # 1. Standard Mint Live install works flawlessly from a USB device when booted 
 # via Win10 Settings, "Updates & Security/Recovery, Advanced startup/Restart now"
@@ -74,6 +74,14 @@ sudo chown -R tak.tak ./*
 #############################################################
 sudo /opt/tak/db-utils/takserver-setup-db-mint.sh
 #############################################################
+###
+# Remove the init functions from the takserver scripts
+# because this is not a native file in Debian nor are the functions
+# actually called by the scripts.
+sudo sed -i 's/. \/etc\/rc.d\/init.d\/functions/#&/' /etc/init.d/takserver
+sudo sed -i 's/. \/etc\/rc.d\/init.d\/functions/#&/' /etc/init.d/takserver-messaging
+sudo sed -i 's/. \/etc\/rc.d\/init.d\/functions/#&/' /etc/init.d/takserver-api
+###
 
 # 10. Reboot and check the system d status of the takserver.service
 sudo reboot
