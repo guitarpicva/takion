@@ -28,7 +28,7 @@ sudo systemctl start sshd
 #sudo apt install pps-tools
 
 # 6. Install dependencies for the TAK server
-sudo apt install java11-sdk
+sudo apt install openjdk-11-jdk
 # postgresql currently installs version 12 and already initdb's the system
 sudo apt install postgresql 
 # 7. Select the jdk11 as the default Java version by
