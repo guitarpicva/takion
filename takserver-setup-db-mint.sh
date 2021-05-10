@@ -119,28 +119,6 @@ fi
 
 echo "Database updated with SchemaManager.jar"
 
-if [ ! -x /usr/bin/systemctl ]; then
-  echo "Systemctl was not found. Skipping Systemd configuration."
-  exit 1
-fi
-
-# Set PostgreSQL to run automatically at boot time
-if [ -d /var/lib/pgsql/10/data ]; then
-    START_INIT="chkconfig --level 345 postgresql-10 on"
-elif [ -x /usr/bin/systemctl ]; then
-    /usr/bin/systemctl enable postgresql.service
-elif [ -d /var/lib/pgsql/9.4/data ]; then
-    START_INIT="chkconfig --level 345 postgresql-9.4 on"
-elif [ -d /var/lib/pgsql/9.5/data ]; then
-    START_INIT="chkconfig --level 345 postgresql-9.5 on"
-elif [ -d /var/lib/pgsql/9.6/data ]; then
-    START_INIT="chkconfig --level 345 postgresql-9.6 on"
-else
-  echo "ERROR: unable to detect postgres version to start on boot"
-  exit 1
-fi
-    
-$START_INIT
-echo "set postgres to start on boot"
+echo "FINISHED!"
 
 
