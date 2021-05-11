@@ -74,10 +74,14 @@ sudo chown -R tak.tak ./*
 #############################################################
 sudo /opt/tak/db-utils/takserver-setup-db-mint.sh
 #############################################################
-###
+### Copy over the startup scripts to /etc/init.d
 sudo cp /opt/tak/API/takserver-api /etc/init.d
 sudo cp /opt/tak/messaging/takserver-messaging /etc/init.d
 sudo cp /opt/tak/launcher/takserver /etc/init.d
+sudo chmod 755 /etc/init.d/takserver*
+sudo cp /opt/tak/API/takserver-api.sh /opt/tak
+sudo cp /opt/tak/messaging/takserver-messaging.sh /opt/tak
+sudo chmod 544 /opt/tak/takserver*.sh
 # Remove the init functions from the takserver scripts
 # because this is not a native file in Debian nor are the functions
 # actually called by the scripts.
@@ -85,14 +89,15 @@ sudo sed -i 's/. \/etc\/rc.d\/init.d\/functions/#&/' /etc/init.d/takserver
 sudo sed -i 's/. \/etc\/rc.d\/init.d\/functions/#&/' /etc/init.d/takserver-messaging
 sudo sed -i 's/. \/etc\/rc.d\/init.d\/functions/#&/' /etc/init.d/takserver-api
 ###
-# 10. Reboot and check the system d status of the takserver.service
-sudo reboot
+# 10. Check the system d status of the takserver.service and reboot
 # now enable it at boot
 sudo systemctl enable takserver
-# now start it
-sudo systemctl start takserver
+sudo reboot
+# now check the systemd status
+sudo systemctl status takserver
 # now check it
 ps ax|grep tak
+
 # that should show multiple "java" processes running along with the
 # originating shell scripts for them.
 
@@ -101,13 +106,17 @@ ps ax|grep tak
 ###################################################################
 sudo firewall-cmd --add-port=6969/udp --permanent
 sudo firewall-cmd --add-port=8080/tcp --permanent
-sudo firewall-cmd --add-port=8087/udp --permanent
-sudo firewall-cmd --add-port=8087/tcp --permanent
+# These two can be closed later
+sudo firewall-cmd --add-port=8088/udp --permanent
+sudo firewall-cmd --add-port=8088/tcp --permanent
+# End These two can be closed later ^^
 sudo firewall-cmd --add-port=8089/tcp --permanent
 sudo firewall-cmd --add-port=8089/udp --permanent
 sudo firewall-cmd --add-port=8443/tcp --permanent
+sudo firewall-cmd --add-port=8446/tcp --permanent
+sudo firewall-cmd --add-port=8446/tcp --permanent
 
-# 13. Change the config to allow lots of open file descriptors
+# 13. Change the limits.conf to allow lots of open file descriptors
 sudo echo -e "* soft nofile 32768\n* hard nofile 32768" | sudo tee --append /etc/security/limits.conf > /dev/null
 
 ###################################################################
