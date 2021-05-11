@@ -75,6 +75,9 @@ sudo chown -R tak.tak ./*
 sudo /opt/tak/db-utils/takserver-setup-db-mint.sh
 #############################################################
 ###
+sudo cp /opt/tak/API/takserver-api /etc/init.d
+sudo cp /opt/tak/messaging/takserver-messaging /etc/init.d
+sudo cp /opt/tak/launcher/takserver /etc/init.d
 # Remove the init functions from the takserver scripts
 # because this is not a native file in Debian nor are the functions
 # actually called by the scripts.
